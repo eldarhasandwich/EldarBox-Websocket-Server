@@ -1,5 +1,6 @@
 
 import * as WebSocket from 'websocket'
+import * as http from 'http'
 
 import { GameLogic } from '../Games'
 
@@ -23,11 +24,23 @@ export interface GameServer {
 }
 
 export interface MasterServer {
+  httpServer: http.Server
+  wsServer: WebSocket.server
   games: GameServer[]
 }
 
-export default {
-  CreateServer,
-  CreateGame,
-  GuestConnection
+export enum SenderType {
+  Master,
+  Guest
+}
+
+export enum MessageOrder {
+  Initial,
+  Subsequent
+}
+
+export interface ClientMessage {
+  senderType: SenderType
+  messageOrder: MessageOrder
+  payload: any
 }

@@ -2,22 +2,19 @@
 import * as WebSocket from 'websocket'
 
 import { 
-  Client,
   MasterServer,
   GameServer
 } from '.'
 
-import { GetGameById } from '../Games'
+import { GameLogic } from '../Games'
 
 const generateConnectCode = () => {
   const stamp = Date.now().toString()
   return stamp.substring(stamp.length - 4, stamp.length - 0)
 }
 
-export const CreateGame = (ms: MasterServer,  masterClientConnection: WebSocket.connection, gameId: string) => {
+export const CreateGame = (ms: MasterServer,  masterClientConnection: WebSocket.connection, gameLogic: GameLogic) => {
   const code = generateConnectCode()
-
-  const gameLogic = GetGameById(gameId)
 
   const gameInstance: GameServer = {
     gameId: code,
@@ -31,6 +28,20 @@ export const CreateGame = (ms: MasterServer,  masterClientConnection: WebSocket.
   }
 
   gameInstance.gameLogic.masterClientEvents.onStart(gameInstance)
+
+  masterClientConnection.on('message', message => {
+    gameInstance.gameLogic.masterClientEvents.onMessage(gameInstance, message)
+  })
+
+  masterClientConnection.on('close', () => {
+    gameInstance.gameLogic.masterClientEvents.onClose(gameInstance)
+
+    gameInstance.guestClients.forEach(client => {
+      client.connection.close()
+    })
+
+    // TODO: remove game from gamearray
+  })
 
   ms.games.push(gameInstance)
 }
