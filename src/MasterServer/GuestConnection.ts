@@ -1,16 +1,15 @@
 
 import * as WebSocket from 'websocket'
 
-import { 
+import {
   Client,
   MasterServer,
   GameServer
 } from '.'
 
-
 export const GuestConnection = (
-  ms: MasterServer, 
-  guestConnection: WebSocket.connection, 
+  ms: MasterServer,
+  guestConnection: WebSocket.connection,
   guestName: string,
   connectCode: string
 ) => {
@@ -35,7 +34,7 @@ export const GuestConnection = (
     connection: guestConnection,
     name: guestName
   }
-  
+
   gameInstance.guestClients.push(guest)
 
   gameInstance.gameLogic.guestClientEvents.onSuccessfulJoin(gameInstance, guestName)
