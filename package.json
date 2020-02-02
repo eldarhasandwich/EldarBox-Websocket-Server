@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "tslint -p tsconfig.json",
+    "lint:fix": "tslint -p tsconfig.json --fix",
     "pretest": "npm run lint",
     "test": "ava",
     "start": "ts-node src/index.ts"
@@ -23,11 +24,12 @@
     "tslint-config-standard": "^9.0.0"
   },
   "ava": {
-		"extensions": [
-			"ts"
-		],
-		"require": [
-			"ts-node/register",
-			"tsconfig-paths/register"
-		]
-	}
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register",
+      "tsconfig-paths/register"
+    ]
+  }
+}
