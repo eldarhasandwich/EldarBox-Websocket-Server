@@ -1,7 +1,7 @@
 
 import * as WebSocket from 'websocket'
 
-import { 
+import {
   MasterServer,
   GameServer
 } from '.'
@@ -13,7 +13,7 @@ const generateConnectCode = () => {
   return stamp.substring(stamp.length - 4, stamp.length - 0)
 }
 
-export const CreateGame = (ms: MasterServer,  masterClientConnection: WebSocket.connection, gameLogic: GameLogic) => {
+export const CreateGame = (ms: MasterServer, masterClientConnection: WebSocket.connection, gameLogic: GameLogic) => {
   const code = generateConnectCode()
 
   const gameInstance: GameServer = {
