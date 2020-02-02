@@ -1,20 +1,33 @@
 
 import * as WebSocket from 'websocket'
+import * as T from 'tswrap'
 
 import {
   MasterServer,
   GameServer
-} from '.'
+} from '../types'
 
 import { GameLogic } from '../Games'
 
-const generateConnectCode = () => {
+export async function generateConnectCode (): T.R<string> {
   const stamp = Date.now().toString()
   return stamp.substring(stamp.length - 4, stamp.length - 0)
 }
 
-export const CreateGame = (ms: MasterServer, masterClientConnection: WebSocket.connection, gameLogic: GameLogic) => {
-  const code = generateConnectCode()
+interface CreateGameOptions {
+  masterServer: MasterServer,
+  masterClientConnection: WebSocket.connection,
+  gameLogic: GameLogic
+}
+
+export async function CreateGame ({
+  masterServer,
+  masterClientConnection,
+  gameLogic
+}: CreateGameOptions): T.R<GameServer> {
+  const code = await generateConnectCode()
+
+  if (T.isError(code)) return code
 
   const gameInstance: GameServer = {
     gameId: code,
@@ -43,5 +56,7 @@ export const CreateGame = (ms: MasterServer, masterClientConnection: WebSocket.c
     // TODO: remove game from gamearray
   })
 
-  ms.games.push(gameInstance)
+  masterServer.games.push(gameInstance)
+
+  return gameInstance
 }
