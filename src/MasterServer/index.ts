@@ -19,7 +19,7 @@ export interface GameServer {
 
   masterClient: Client
   guestClients: Client[]
-  
+
   gameLogic: GameLogic
 }
 

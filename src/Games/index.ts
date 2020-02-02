@@ -25,7 +25,6 @@ export interface GameLogic {
   maxPlayers: number
 }
 
-export const GetGameById = (gameId: string): GameLogic => {
-
+export const GetGameById = (gameId: string): null | GameLogic => {
   return null
 }

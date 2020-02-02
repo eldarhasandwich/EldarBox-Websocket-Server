@@ -22,7 +22,7 @@ export const CreateServer = (port: number): MasterServer.MasterServer => {
   })
 
   const wsServer = new WebSocket.server({
-    httpServer: httpServer,
+    httpServer,
     // You should not use autoAcceptConnections for production
     // applications, as it defeats all standard cross-origin protection
     // facilities built into the protocol and the browser.  You should
@@ -33,7 +33,7 @@ export const CreateServer = (port: number): MasterServer.MasterServer => {
 
   const originIsAllowed = (origin: string) => {
     // put logic here to detect whether the specified origin is allowed.
-    return true;
+    return true
   }
 
   const masterServer: MasterServer.MasterServer = {
@@ -56,6 +56,11 @@ export const CreateServer = (port: number): MasterServer.MasterServer => {
     connection.on('message', message => {
       if (message.type !== 'utf8') {
         console.error(`We want message type of utf8 but recieved type ${message.type}`)
+        return
+      }
+
+      if (!message.utf8Data) {
+        console.error('Got message with no data')
         return
       }
 
@@ -91,7 +96,6 @@ export const CreateServer = (port: number): MasterServer.MasterServer => {
       console.log((new Date()) + ' Peer ' + connection.remoteAddress + ' disconnected.')
     })
   })
-  
 
   return masterServer
 }
