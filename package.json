@@ -13,6 +13,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "mock-socket": "^9.0.3",
+    "ts-mocha": "^6.0.0",
+    "tswrap": "^1.0.4",
     "typescript": "^3.7.5",
     "websocket": "^1.0.31"
   },

@@ -5,7 +5,7 @@ import {
   Client,
   MasterServer,
   GameServer
-} from '.'
+} from '../types'
 
 export const GuestConnection = (
   ms: MasterServer,

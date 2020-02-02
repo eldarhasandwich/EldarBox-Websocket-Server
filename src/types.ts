@@ -2,11 +2,7 @@
 import * as WebSocket from 'websocket'
 import * as http from 'http'
 
-import { GameLogic } from '../Games'
-
-import { CreateServer } from './CreateServer'
-import { CreateGame } from './CreateGame'
-import { GuestConnection } from './GuestConnection'
+import { GameLogic } from './Games'
 
 export interface Client {
   connection: WebSocket.connection

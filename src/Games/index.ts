@@ -1,7 +1,7 @@
 
 import * as WebSocket from 'websocket'
 
-import { GameServer } from '../MasterServer'
+import { GameServer } from '../types'
 
 export interface MasterEvents {
   onStart: (gs: GameServer) => void
