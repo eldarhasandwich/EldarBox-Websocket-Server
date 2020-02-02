@@ -4,21 +4,26 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "ts-mocha 'test/**/*.ts'",
+    "test": "ava",
     "start": "ts-node src/index.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "mocha": "^6.2.2",
-    "mock-socket": "^9.0.3",
-    "ts-mocha": "^6.0.0",
     "typescript": "^3.7.5",
     "websocket": "^1.0.31"
   },
   "devDependencies": {
     "@types/websocket": "^1.0.0",
-    "@types/expect": "^24.3.0",
-    "@types/mocha": "^5.2.7"
-  }
+    "@types/expect": "^24.3.0"
+  },
+  "ava": {
+		"extensions": [
+			"ts"
+		],
+		"require": [
+			"ts-node/register",
+			"tsconfig-paths/register"
+		]
+	}
 }

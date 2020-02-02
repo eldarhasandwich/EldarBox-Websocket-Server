@@ -1,24 +1,15 @@
 
 import * as WebSocket from 'websocket'
 
-const assert = require('assert');
 import { CreateServer } from '../../src/MasterServer/CreateServer'
 
-describe('Master Server', () => {
-  describe('#CreateGame', () => {
+import test from 'ava'
 
-    const port = 8080 
-    const server = CreateServer(8080)
-    const masterClient = new WebSocket.w3cwebsocket(`ws://localhost:${port}`, 'echo-protocol')
-    
-    it('fails to create a server with a nonexistent gameId', (done) => {
-            
-      done()
-    })
+test('foo', t => {
+	t.pass();
+});
 
-    it('successfully creates a server when gameId is valid', (done) => {
-
-      done()
-    })
-  })
-})
+test('bar', async t => {
+	const bar = Promise.resolve('bar');
+	t.is(await bar, 'bar');
+});
