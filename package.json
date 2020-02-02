@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha 'test/**/*.ts'",
+    "test": "ts-mocha 'test/**/*.ts'",
     "start": "ts-node src/index.ts"
   },
   "author": "",

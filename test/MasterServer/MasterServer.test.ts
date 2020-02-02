@@ -1,20 +1,16 @@
 
-const assert = require('assert');
-
 import * as WebSocket from 'websocket'
 
-import MasterServer from '../../src/MasterServer'
+const assert = require('assert');
+import { CreateServer } from '../../src/MasterServer/CreateServer'
 
 describe('Master Server', () => {
   describe('#CreateGame', () => {
 
-    let outputMessage: string
-    const MockWebsocketConnection = {
-      send: (message: string) => { outputMessage = message }
-    }
-
-
-
+    const port = 8080 
+    const server = CreateServer(8080)
+    const masterClient = new WebSocket.w3cwebsocket(`ws://localhost:${port}`, 'echo-protocol')
+    
     it('fails to create a server with a nonexistent gameId', (done) => {
             
       done()

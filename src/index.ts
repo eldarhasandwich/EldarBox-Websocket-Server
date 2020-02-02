@@ -1,4 +1,5 @@
 
 import { CreateServer } from './MasterServer/CreateServer'
 
-const masterServer = CreateServer()
+const port = 8080
+const masterServer = CreateServer(port)

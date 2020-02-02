@@ -9,7 +9,7 @@ import { GuestConnection } from './GuestConnection'
 
 import { GetGameById } from '../Games'
 
-export const CreateServer = (): MasterServer.MasterServer => {
+export const CreateServer = (port: number): MasterServer.MasterServer => {
 
   const httpServer = http.createServer((request, response) => {
     console.log((new Date()) + ' Received request for ' + request.url)
@@ -17,7 +17,7 @@ export const CreateServer = (): MasterServer.MasterServer => {
     response.end()
   })
 
-  httpServer.listen(8080, () => {
+  httpServer.listen(port, () => {
     console.log((new Date()) + ' Server is listening on port 8080')
   })
 
