@@ -1,5 +1,5 @@
 
-import { CreateServer } from './MasterServer/CreateServer'
+import { CreateServer } from './server'
 
 const port = 8080
 

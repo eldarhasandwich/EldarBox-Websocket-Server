@@ -3,12 +3,12 @@ import * as WebSocket from 'websocket'
 import * as http from 'http'
 import * as T from 'tswrap'
 
-import * as types from '../types'
+import * as types from './types'
 
-import { CreateGame } from './CreateGame'
-import { GuestConnection } from './GuestConnection'
+import { CreateGame } from './game'
+import { GuestConnection } from './player'
 
-import { GetGameById } from '../Games'
+import { GetGameById } from './games'
 
 export interface CreateServerOptions {
   port: number
@@ -25,6 +25,11 @@ export function CreateServer ({
 
   httpServer.listen(port, () => {
     console.log((new Date()) + ' Server is listening on port 8080')
+  })
+
+  httpServer.on('error', (err) => {
+    console.error(`Error listening on port ${port}: ${err}`)
+    process.exit(1)
   })
 
   const wsServer = new WebSocket.server({

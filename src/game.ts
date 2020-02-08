@@ -5,9 +5,9 @@ import * as T from 'tswrap'
 import {
   MasterServer,
   GameServer
-} from '../types'
+} from './types'
 
-import { GameLogic } from '../Games'
+import { GameLogic } from './games'
 
 export async function generateConnectCode (): T.R<string> {
   const stamp = Date.now().toString()
