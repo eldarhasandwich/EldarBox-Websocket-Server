@@ -1,62 +1,59 @@
+import * as crypto from 'crypto'
 
-import * as WebSocket from 'websocket'
 import * as T from 'tswrap'
+import socketIO from 'socket.io'
 
-import {
-  MasterServer,
-  GameServer
-} from './types'
+import { Player } from './player'
 
-import { GameLogic } from './games'
-
-export async function generateConnectCode (): T.R<string> {
-  const stamp = Date.now().toString()
-  return stamp.substring(stamp.length - 4, stamp.length - 0)
+enum GameType {
+  ticktacktoe = 0
 }
 
-interface CreateGameOptions {
-  masterServer: MasterServer,
-  masterClientConnection: WebSocket.connection,
-  gameLogic: GameLogic
+interface NewGameRequest {
+  name: string,
+  type: GameType,
+  master: Player,
+  socketServer: socketIO.Server
 }
 
-export async function CreateGame ({
-  masterServer,
-  masterClientConnection,
-  gameLogic
-}: CreateGameOptions): T.R<GameServer> {
-  const code = await generateConnectCode()
+class Game {
+  name: string
+  type: GameType
+  socketServer: socketIO.Server
 
-  if (T.isError(code)) return code
+  master: Player
+  players: Player[]
+  pin: string
 
-  const gameInstance: GameServer = {
-    gameId: code,
-    connectCode: code,
-    masterClient: {
-      connection: masterClientConnection
-    },
-    guestClients: [],
+  constructor (request: NewGameRequest) {
+    this.name = request.name
+    this.type = request.type
 
-    gameLogic
+    this.socketServer = request.socketServer
+
+    this.master = request.master
+    this.players = []
+
+    this.pin = crypto.randomBytes(4).toString('hex')
   }
 
-  gameInstance.gameLogic.masterClientEvents.onStart(gameInstance)
+  join (player: Player): boolean {
+    // TODO: check if player can actually join
+    this.players.push(player)
+    const playerRoomSocket = player.connection.join(`room ${this.pin}`)
 
-  masterClientConnection.on('message', message => {
-    gameInstance.gameLogic.masterClientEvents.onMessage(gameInstance, message)
-  })
+    player.playerRoomSocket = playerRoomSocket
 
-  masterClientConnection.on('close', () => {
-    gameInstance.gameLogic.masterClientEvents.onClose(gameInstance)
+    return true
+  }
 
-    gameInstance.guestClients.forEach(client => {
-      client.connection.close()
-    })
+  start (): void {
+    this.socketServer.to(`room ${this.pin}`).emit('start')
+  }
 
-    // TODO: remove game from gamearray
-  })
-
-  masterServer.games.push(gameInstance)
-
-  return gameInstance
+  end (): void {
+    for (const player of this.players) {
+      player.connection.emit('disconnect')
+    }
+  }
 }

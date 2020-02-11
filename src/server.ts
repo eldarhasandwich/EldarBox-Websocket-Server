@@ -8,7 +8,7 @@ import * as types from './types'
 import { CreateGame } from './game'
 import { GuestConnection } from './player'
 
-import { GetGameById } from './games'
+import { GetGameById } from './Games'
 
 export interface CreateServerOptions {
   port: number
@@ -24,7 +24,7 @@ export function CreateServer ({
   })
 
   httpServer.listen(port, () => {
-    console.log((new Date()) + ' Server is listening on port 8080')
+    console.log((new Date()) + ' xServer is listening on port 8080')
   })
 
   httpServer.on('error', (err) => {
