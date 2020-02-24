@@ -1,8 +1,8 @@
 import { Player } from '../player'
 
-export interface GameLogic<MessageType, StateType> {
+export interface GameLogic<Message, State> {
   maxPlayers: number,
   players: Player[],
-  messageReducer: (message: MessageType) => StateType
-  state: StateType
+  messageReducer: (message: Message) => State
+  state: State
 }
