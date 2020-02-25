@@ -5,7 +5,7 @@ import socketIO from 'socket.io'
 
 import { Player } from './player'
 
-enum GameType {
+export enum GameType {
   ticktacktoe = 0
 }
 
@@ -16,7 +16,7 @@ interface NewGameRequest {
   socketServer: socketIO.Server
 }
 
-class Game {
+export class Game {
   name: string
   type: GameType
   socketServer: socketIO.Server
