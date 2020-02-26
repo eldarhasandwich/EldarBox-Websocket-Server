@@ -4,8 +4,20 @@ import socketIO from 'socket.io'
 import { Player } from './player'
 import { 
   Game, 
-  GameType
 } from './game'
+import { GameLogic } from './logic/gameLogic'
+
+export interface NewGameRequest {
+  name: string,
+  gameType: GameType,
+  gameLogic: GameLogic<any, any>,
+  master: Player,
+  socketServer: socketIO.Server
+}
+
+export enum GameType {
+  ticktacktoe = 0
+}
 
 class GameRoomList {
 
@@ -15,30 +27,16 @@ class GameRoomList {
     this.list = {}
   }
 
-  createGame = (masterSocket: socketIO.Socket, socketServer: socketIO.Server, gameType: GameType): { connectCode: string } => {
-    const master = {
-      name: 'room master',
-      connection: masterSocket
-    }
-
-    const newGameRequest = {
-      name: 'a game',
-      type: GameType.ticktacktoe,
-      master,
-      socketServer
-    }
+  createGame = (request: NewGameRequest): Game => {    
+    const newGame = new Game(request)
+    const connectCode = newGame.pin
     
-    const g = new Game(newGameRequest)
-    const connectCode = g.pin
-    
-    this.list[connectCode] = g
+    this.list[connectCode] = newGame
 
-    return {
-      connectCode
-    }
+    return newGame
   }
 
-  joinGame = (guestSocket: socketIO.Socket) => {
+  joinGame = (guestName: string, guestSocket: socketIO.Socket) => {
     
   }
 }

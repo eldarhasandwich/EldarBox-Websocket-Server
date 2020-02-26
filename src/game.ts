@@ -3,22 +3,18 @@ import * as crypto from 'crypto'
 import * as T from 'tswrap'
 import socketIO from 'socket.io'
 
+import { 
+  NewGameRequest,
+  GameType 
+} from './gameRoomList'
+import { GameLogic } from './logic/gameLogic'
+
 import { Player } from './player'
-
-export enum GameType {
-  ticktacktoe = 0
-}
-
-interface NewGameRequest {
-  name: string,
-  type: GameType,
-  master: Player,
-  socketServer: socketIO.Server
-}
 
 export class Game {
   name: string
   type: GameType
+  gameLogic: GameLogic<any, any>
   socketServer: socketIO.Server
 
   master: Player
@@ -27,7 +23,8 @@ export class Game {
 
   constructor (request: NewGameRequest) {
     this.name = request.name
-    this.type = request.type
+    this.type = request.gameType
+    this.gameLogic = request.gameLogic
 
     this.socketServer = request.socketServer
 
@@ -35,12 +32,18 @@ export class Game {
     this.players = []
 
     this.pin = crypto.randomBytes(4).toString('hex')
+
+    this.master.playerRoomSocket = this.master.connection.join(this.getRoomId())
+  }
+
+  getRoomId (): string {
+    return `room ${this.pin}`
   }
 
   join (player: Player): boolean {
     // TODO: check if player can actually join
     this.players.push(player)
-    const playerRoomSocket = player.connection.join(`room ${this.pin}`)
+    const playerRoomSocket = player.connection.join(this.getRoomId())
 
     player.playerRoomSocket = playerRoomSocket
 
@@ -48,7 +51,7 @@ export class Game {
   }
 
   start (): void {
-    this.socketServer.to(`room ${this.pin}`).emit('start')
+    this.socketServer.to(this.getRoomId()).emit('game-start')
   }
 
   end (): void {
