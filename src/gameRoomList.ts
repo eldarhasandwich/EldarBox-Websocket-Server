@@ -35,10 +35,6 @@ class GameRoomList {
 
     return newGame
   }
-
-  joinGame = (guestName: string, guestSocket: socketIO.Socket) => {
-    
-  }
 }
 
 export default GameRoomList

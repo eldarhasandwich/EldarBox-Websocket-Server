@@ -42,19 +42,33 @@ io.on('connection', (socket: socketIO.Socket) => {
     }
 
     const newGame = roomList.createGame(newGameRequest)
-
     socket.emit('index-gameCreated', { connectCode: newGame.pin })
   })
 
-  socket.on('index-joinRoom', (message: { connectCode: string }) => {
+  socket.on('index-joinRoom', (message: { playerName: string, connectCode: string }) => {
 
     console.log('attempting to join room')
 
-    if (!roomList.list[message.connectCode]) {
+    const gameRoom = roomList.list[message.connectCode]
+
+    if (!gameRoom) {
       socket.emit('index-error', { reason: 'No room with this connectCode' })
+      return
     }
 
+    const player = {
+      name: message.playerName,
+      connection: socket
+    }
 
+    const response = gameRoom.join(player)
+
+    if (!response.successful) {
+      socket.emit('index-error', { reason: 'Player could not join this room' })
+      return
+    }
+
+    
   })
 })
 

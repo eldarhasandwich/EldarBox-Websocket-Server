@@ -40,14 +40,22 @@ export class Game {
     return `room ${this.pin}`
   }
 
-  join (player: Player): boolean {
-    // TODO: check if player can actually join
+  join (player: Player): { successful: boolean } {
+    if (this.players.length >= this.gameLogic.maxPlayers) {
+      return { successful: false }
+    }
+
+    const nameCollision = this.players.find(existingPlayer => existingPlayer.name === player.name)
+    if (nameCollision) {
+      return { successful: false }
+    }
+
     this.players.push(player)
-    const playerRoomSocket = player.connection.join(this.getRoomId())
+    player.playerRoomSocket = player.connection.join(this.getRoomId())
 
-    player.playerRoomSocket = playerRoomSocket
+    // apply gamelogic to player socket!
 
-    return true
+    return { successful: true }
   }
 
   start (): void {
