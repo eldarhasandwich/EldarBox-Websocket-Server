@@ -5,7 +5,7 @@ import express from 'express'
 import socketIO from 'socket.io'
 
 import config from './config'
-import GameRoomList, { GameType } from './gameRoomList'
+import { Game, GameType } from './game'
 // import { Game } from './game'
 import { RetrieveGameLogic } from './logic/gameLogic'
 
@@ -13,7 +13,7 @@ const app = express()
 const server = http.createServer(app)
 const io = socketIO(server)
 
-const roomList = new GameRoomList()
+const roomList: { [connectCode: string]: Game } = {}
 
 io.on('connection', (socket: socketIO.Socket) => {
   console.log('Socket Connection')
@@ -41,7 +41,8 @@ io.on('connection', (socket: socketIO.Socket) => {
       socketServer: io
     }
 
-    const newGame = roomList.createGame(newGameRequest)
+    const newGame = new Game(newGameRequest)
+
     socket.emit('index-gameCreated', { connectCode: newGame.pin })
   })
 
@@ -49,7 +50,7 @@ io.on('connection', (socket: socketIO.Socket) => {
 
     console.log('attempting to join room')
 
-    const gameRoom = roomList.list[message.connectCode]
+    const gameRoom = roomList[message.connectCode]
 
     if (!gameRoom) {
       socket.emit('index-error', { reason: 'No room with this connectCode' })
@@ -68,7 +69,7 @@ io.on('connection', (socket: socketIO.Socket) => {
       return
     }
 
-    
+    socket.emit('index-gameJoined')
   })
 })
 

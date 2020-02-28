@@ -3,13 +3,21 @@ import * as crypto from 'crypto'
 import * as T from 'tswrap'
 import socketIO from 'socket.io'
 
-import { 
-  NewGameRequest,
-  GameType 
-} from './gameRoomList'
 import { GameLogic } from './logic/gameLogic'
 
 import { Player } from './player'
+
+export enum GameType {
+  ticktacktoe = 0
+}
+
+export interface NewGameRequest {
+  name: string,
+  gameType: GameType,
+  gameLogic: GameLogic<any, any>,
+  master: Player,
+  socketServer: socketIO.Server
+}
 
 export class Game {
   name: string
