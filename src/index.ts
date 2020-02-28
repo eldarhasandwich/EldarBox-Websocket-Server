@@ -6,7 +6,6 @@ import socketIO from 'socket.io'
 
 import config from './config'
 import { Game, GameType } from './game'
-// import { Game } from './game'
 import { RetrieveGameLogic } from './logic/gameLogic'
 
 const app = express()

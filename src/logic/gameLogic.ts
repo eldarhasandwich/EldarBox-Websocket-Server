@@ -1,5 +1,5 @@
 import { Player } from '../player'
-import { GameType } from '../gameRoomList'
+import { GameType } from '../game'
 
 import { TickTackToe } from './ticktacktoe'
 
@@ -11,7 +11,7 @@ export interface GameLogic<Message, State> {
 }
 
 export const RetrieveGameLogic = (gameType: GameType): GameLogic<any, any> | undefined => {
-  switch(gameType) {
+  switch (gameType) {
     case GameType.ticktacktoe:
       return TickTackToe
 
