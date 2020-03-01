@@ -73,12 +73,24 @@ export class Game {
     player.playerRoomSocket = player.connection.join(this.getRoomId())
 
     // apply gamelogic to player socket!
+    player.connection.on('gameCommand', (command: any) => {
+      const newState = this.gameLogic.messageReducer(command)
+      this.gameLogic.state = newState
+
+      this.socketServer
+        .to(this.getRoomId())
+        .emit('stateUpdate', { state: this.getGamestate() })
+    })
+
+    this.socketServer
+      .to(this.getRoomId())
+      .emit('stateUpdate', { state: this.getGamestate() })
 
     return { successful: true }
   }
 
   startGame (): void {
-    this.socketServer.to(this.getRoomId()).emit('game-start')
+    this.socketServer.to(this.getRoomId()).emit('game-start', { ok: 'ok' })
   }
 
   endGame (): void {
