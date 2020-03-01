@@ -3,8 +3,13 @@ import { Player } from '../player'
 
 const messageTypes = [ 'place' ]
 
-interface Message {
-  messageType: 'place'
+interface PlaceCommand {
+  messageType: 'place',
+  token: BoardToken,
+  position: {
+    x: 0 | 1 | 2,
+    y: 0 | 1 | 2
+  }
 }
 
 enum BoardToken {
@@ -17,7 +22,7 @@ interface State {
   board: BoardToken[][]
 }
 
-const defaultState = {
+const defaultState: State = {
   board: [
     [0,0,0],
     [0,0,0],
@@ -25,14 +30,20 @@ const defaultState = {
   ]
 }
 
-const messageReducer = (message: Message): State => {
+const messageReducer = (currentState: State, message: PlaceCommand): State => {
   switch (message.messageType) {
     case 'place':
-      const newState: State = { board: [] }
+      const newBoard = currentState.board
+      newBoard[message.position.x][message.position.y] = message.token
+
+      const newState: State = {
+        ...currentState,
+        board: newBoard
+      }
       return newState
 
     default:
-      return TickTackToe.defaultState
+      return currentState
   }
 }
 
