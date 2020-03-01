@@ -1,21 +1,31 @@
-import { Player } from '../player'
 import { GameType } from '../game'
 
 import { TickTackToe } from './ticktacktoe'
 
-export interface GameLogic<Message, State> {
+export interface GameLogic {
   maxPlayers: number,
-  players: Player[],
-  messageReducer: (message: Message) => State
-  state: State
+  messageReducer: (message: any) => any
+  defaultState: any
 }
 
-export const RetrieveGameLogic = (gameType: GameType): GameLogic<any, any> | undefined => {
+export const RetrieveGameLogic = (gameType: GameType): GameLogic | undefined => {
   switch (gameType) {
     case GameType.ticktacktoe:
       return TickTackToe
 
     default:
       return undefined
+  }
+}
+
+export class GameLogicInstance {
+  maxPlayers: number
+  state: any
+  messageReducer: (message: any) => any
+
+  constructor (gameLogic: GameLogic) {
+    this.maxPlayers = gameLogic.maxPlayers,
+    this.state = JSON.parse(JSON.stringify(gameLogic.defaultState)), // just in case shh
+    this.messageReducer = gameLogic.messageReducer
   }
 }

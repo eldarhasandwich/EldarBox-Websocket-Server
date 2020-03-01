@@ -3,7 +3,7 @@ import * as crypto from 'crypto'
 import * as T from 'tswrap'
 import socketIO from 'socket.io'
 
-import { GameLogic } from './logic/gameLogic'
+import { GameLogicInstance } from './logic/gameLogic'
 
 import { Player } from './player'
 
@@ -14,7 +14,7 @@ export enum GameType {
 export interface NewGameRequest {
   name: string,
   gameType: GameType,
-  gameLogic: GameLogic<any, any>,
+  gameLogic: GameLogicInstance,
   master: Player,
   socketServer: socketIO.Server
 }
@@ -22,7 +22,7 @@ export interface NewGameRequest {
 export class Game {
   name: string
   type: GameType
-  gameLogic: GameLogic<any, any>
+  gameLogic: GameLogicInstance
   socketServer: socketIO.Server
 
   master: Player
@@ -33,19 +33,30 @@ export class Game {
     this.name = request.name
     this.type = request.gameType
     this.gameLogic = request.gameLogic
-
     this.socketServer = request.socketServer
-
     this.master = request.master
     this.players = []
 
     this.pin = crypto.randomBytes(4).toString('hex')
-
     this.master.playerRoomSocket = this.master.connection.join(this.getRoomId())
+
+    this.master.connection.on('disconnect', () => {
+      this.endGame()
+    })
   }
 
   getRoomId (): string {
     return `room ${this.pin}`
+  }
+
+  getGamestate (): any {
+    return {
+      name: this.name,
+      type: this.type,
+      state: this.gameLogic.state,
+      players: this.players.map(p => { return { name: p.name } }),
+      pin: this.pin
+    }
   }
 
   join (player: Player): { successful: boolean } {
@@ -66,11 +77,11 @@ export class Game {
     return { successful: true }
   }
 
-  start (): void {
+  startGame (): void {
     this.socketServer.to(this.getRoomId()).emit('game-start')
   }
 
-  end (): void {
+  endGame (): void {
     for (const player of this.players) {
       player.connection.emit('disconnect')
     }

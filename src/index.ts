@@ -6,7 +6,10 @@ import socketIO from 'socket.io'
 
 import config from './config'
 import { Game, GameType } from './game'
-import { RetrieveGameLogic } from './logic/gameLogic'
+import {
+  RetrieveGameLogic,
+  GameLogicInstance
+} from './logic/gameLogic'
 
 const app = express()
 const server = http.createServer(app)
@@ -33,16 +36,17 @@ io.on('connection', (socket: socketIO.Socket) => {
     }
 
     const newGameRequest = {
-      name: 'yeet',
+      name: 'a game',
       gameType: message.gameTypeId,
-      gameLogic,
+      gameLogic: new GameLogicInstance(gameLogic),
       master,
       socketServer: io
     }
 
     const newGame = new Game(newGameRequest)
+    roomList[newGame.pin] = newGame
 
-    socket.emit('index-gameCreated', { connectCode: newGame.pin })
+    socket.emit('index-gameCreated', { gameObject: newGame.getGamestate() })
   })
 
   socket.on('index-joinRoom', (message: { playerName: string, connectCode: string }) => {
@@ -56,6 +60,8 @@ io.on('connection', (socket: socketIO.Socket) => {
       return
     }
 
+    console.log('found room', { gameRoom })
+
     const player = {
       name: message.playerName,
       connection: socket
@@ -63,12 +69,14 @@ io.on('connection', (socket: socketIO.Socket) => {
 
     const response = gameRoom.join(player)
 
+    console.log('join response', { response })
+
     if (!response.successful) {
       socket.emit('index-error', { reason: 'Player could not join this room' })
       return
     }
 
-    socket.emit('index-gameJoined')
+    socket.emit('index-gameJoined', { gameObject: gameRoom.getGamestate() })
   })
 })
 
