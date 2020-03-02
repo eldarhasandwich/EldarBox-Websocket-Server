@@ -1,7 +1,5 @@
 import { GameLogic } from './gameLogic'
-import { Player } from '../player'
-
-const messageTypes = [ 'place' ]
+// import { Player } from '../player'
 
 interface PlaceCommand {
   messageType: 'place',

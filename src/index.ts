@@ -22,8 +22,6 @@ io.on('connection', (socket: socketIO.Socket) => {
 
   socket.on('index-createRoom', (message: { gameTypeId: GameType }) => {
 
-    console.log('attempting to create room', { message })
-
     const master = {
       name: 'room master',
       connection: socket
@@ -51,8 +49,6 @@ io.on('connection', (socket: socketIO.Socket) => {
 
   socket.on('index-joinRoom', (message: { playerName: string, connectCode: string }) => {
 
-    console.log('attempting to join room')
-
     const gameRoom = roomList[message.connectCode]
 
     if (!gameRoom) {
@@ -60,16 +56,12 @@ io.on('connection', (socket: socketIO.Socket) => {
       return
     }
 
-    console.log('found room', { gameRoom })
-
     const player = {
       name: message.playerName,
       connection: socket
     }
 
     const response = gameRoom.join(player)
-
-    console.log('join response', { response })
 
     if (!response.successful) {
       socket.emit('index-error', { reason: 'Player could not join this room' })
