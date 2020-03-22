@@ -1,10 +1,10 @@
-import { GameType } from '../game'
+import { Game, GameType } from '../game'
 
 import { TickTackToe } from './ticktacktoe'
 
 export interface GameLogic {
   maxPlayers: number,
-  messageReducer: (currentState: any, message: any) => any
+  messageReducer: (gameObject: Game, currentState: any, message: any) => any
   defaultState: any
 }
 
@@ -21,7 +21,7 @@ export const RetrieveGameLogic = (gameType: GameType): GameLogic | undefined => 
 export class GameLogicInstance {
   maxPlayers: number
   state: any
-  messageReducer: (currentState: any, message: any) => any
+  messageReducer: (gameObject: Game, currentState: any, message: any) => any
 
   constructor (gameLogic: GameLogic) {
     this.maxPlayers = gameLogic.maxPlayers,

@@ -74,7 +74,7 @@ export class Game {
 
     // apply gamelogic to player socket!
     player.connection.on('gameCommand', (command: any) => {
-      const newState = this.gameLogic.messageReducer(this.gameLogic.state, command)
+      const newState = this.gameLogic.messageReducer(this, this.gameLogic.state, command)
       this.gameLogic.state = newState
 
       this.socketServer

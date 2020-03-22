@@ -1,13 +1,18 @@
 import { GameLogic } from './gameLogic'
-// import { Player } from '../player'
+
+import { Game } from '../game'
 
 interface PlaceCommand {
   messageType: 'place',
-  token: BoardToken,
+  invokingPlayer: string
   position: {
     x: 0 | 1 | 2,
     y: 0 | 1 | 2
   }
+}
+
+interface NewGameCommand {
+  messageType: 'newGame'
 }
 
 enum BoardToken {
@@ -17,10 +22,12 @@ enum BoardToken {
 }
 
 interface State {
+  nextToken: BoardToken
   board: BoardToken[][]
 }
 
 const defaultState: State = {
+  nextToken: BoardToken.Naught,
   board: [
     [0,0,0],
     [0,0,0],
@@ -28,17 +35,39 @@ const defaultState: State = {
   ]
 }
 
-const messageReducer = (currentState: State, message: PlaceCommand): State => {
+const HandlePlace = (gameObject: Game, currentState: State, message: PlaceCommand): State => {
+  if (gameObject.players.length > 2) {
+    return currentState
+  }
+
+  const isCrossPlayer = gameObject.players[0].name === message.invokingPlayer
+  const token = isCrossPlayer ? BoardToken.Cross : BoardToken.Naught
+
+  if (currentState.nextToken !== token) {
+    return currentState
+  }
+
+  const newBoard = currentState.board
+  newBoard[message.position.x][message.position.y] = token
+
+  return {
+    ...currentState,
+    nextToken: (token === BoardToken.Cross) ? BoardToken.Naught : BoardToken.Cross,
+    board: newBoard
+  }
+}
+
+const messageReducer = (gameObject: Game, currentState: State, message: PlaceCommand | NewGameCommand): State => {
   switch (message.messageType) {
     case 'place':
-      const newBoard = currentState.board
-      newBoard[message.position.x][message.position.y] = message.token
+      return HandlePlace(gameObject, currentState, message)
 
-      const newState: State = {
+    case 'newGame':
+      return {
         ...currentState,
-        board: newBoard
+        nextToken: defaultState.nextToken,
+        board: defaultState.board
       }
-      return newState
 
     default:
       return currentState
