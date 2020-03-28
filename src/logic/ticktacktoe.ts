@@ -23,11 +23,13 @@ enum BoardToken {
 
 interface State {
   nextToken: BoardToken
+  winner: undefined | BoardToken
   board: BoardToken[][]
 }
 
 const defaultState: State = {
   nextToken: BoardToken.Naught,
+  winner: undefined,
   board: [
     [0,0,0],
     [0,0,0],
@@ -35,8 +37,34 @@ const defaultState: State = {
   ]
 }
 
-const HandlePlace = (gameObject: Game, currentState: State, message: PlaceCommand): State => {
-  if (gameObject.players.length > 2) {
+export const DetectWinState = (board: BoardToken[][], token: BoardToken): BoardToken | undefined => {
+  for (let i = 0; i < 2; i++) {
+    if (board[i][0] === token && board[i][1] === token && board[i][2] === token) {
+      return token
+    }
+
+    if (board[0][i] === token && board[1][i] === token && board[2][i] === token) {
+      return token
+    }
+  }
+
+  if (board[0][0] === token && board[1][1] === token && board[2][2] === token) {
+    return token
+  }
+
+  if (board[0][2] === token && board[1][1] === token && board[2][0] === token) {
+    return token
+  }
+
+  return undefined
+}
+
+export const HandlePlace = (gameObject: Game, currentState: State, message: PlaceCommand): State => {
+  if (gameObject.players.length < 2) {
+    return currentState
+  }
+
+  if (currentState.winner) {
     return currentState
   }
 
@@ -50,10 +78,13 @@ const HandlePlace = (gameObject: Game, currentState: State, message: PlaceComman
   const newBoard = currentState.board
   newBoard[message.position.x][message.position.y] = token
 
+  const winState = DetectWinState(newBoard, token)
+
   return {
     ...currentState,
     nextToken: (token === BoardToken.Cross) ? BoardToken.Naught : BoardToken.Cross,
-    board: newBoard
+    board: newBoard,
+    winner: winState
   }
 }
 
@@ -63,11 +94,7 @@ const messageReducer = (gameObject: Game, currentState: State, message: PlaceCom
       return HandlePlace(gameObject, currentState, message)
 
     case 'newGame':
-      return {
-        ...currentState,
-        nextToken: defaultState.nextToken,
-        board: defaultState.board
-      }
+      return defaultState
 
     default:
       return currentState
