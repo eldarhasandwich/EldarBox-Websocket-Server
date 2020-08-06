@@ -1,17 +1,17 @@
 import socketIO from 'socket.io'
 
-import * as e from './config/eventNames'
-import { RetrieveGameLogic, GameLogic } from './logic/GameLogic'
-import { Game, GameType } from './Game'
+import * as event from './config/EventNames'
+import { Game } from './Classes/Game'
+import { GameType, RetrieveGameLogic, GameLogic } from './GameLogic'
 
 const rooms: { [connectCode: string]: Game } = {}
 
 const RegisterCreateRoomEventOnSocket = (server: socketIO.Server, socket: socketIO.Socket) => {
-  socket.on(e.CREATEROOM, (message: { gameTypeId: GameType }) => {
+  socket.on(event.CREATEROOM, (message: { gameTypeId: GameType }) => {
 
     const gameLogic = RetrieveGameLogic(message.gameTypeId)
     if (!gameLogic) {
-      socket.emit(e.INDEXERROR, { reason: 'No game of this type' })
+      socket.emit(event.INDEXERROR, { reason: 'No game of this type' })
       return
     }
 
@@ -26,17 +26,17 @@ const RegisterCreateRoomEventOnSocket = (server: socketIO.Server, socket: socket
     const newGame = new Game(newGameRequest)
     rooms[newGame.pin] = newGame
 
-    socket.emit(e.ROOMCREATED, { gameObject: newGame.getGamestate() })
+    socket.emit(event.ROOMCREATED, { state: newGame.getGameState() })
   })
 }
 
 const RegisterJoinRoomEventOnSocket = (server: socketIO.Server, socket: socketIO.Socket) => {
-  socket.on(e.JOINROOM, (message: { playerName: string, connectCode: string }) => {
+  socket.on(event.JOINROOM, (message: { playerName: string, connectCode: string }) => {
 
     const gameRoom = rooms[message.connectCode]
 
     if (!gameRoom) {
-      socket.emit(e.INDEXERROR, { reason: 'No room with this connectCode' })
+      socket.emit(event.INDEXERROR, { reason: 'No room with this connectCode' })
       return
     }
 
@@ -45,14 +45,14 @@ const RegisterJoinRoomEventOnSocket = (server: socketIO.Server, socket: socketIO
       connection: socket
     }
 
-    const response = gameRoom.join(player)
+    const joinRoomResponse = gameRoom.playerJoin(player)
 
-    if (!response.successful) {
-      socket.emit(e.INDEXERROR, { reason: 'Player could not join this room' })
+    if (!joinRoomResponse.successful) {
+      socket.emit(event.INDEXERROR, { reason: 'Player could not join this room' })
       return
     }
 
-    socket.emit(e.ROOMJOINED, { gameObject: gameRoom.getGamestate() })
+    socket.emit(event.ROOMJOINED, { state: gameRoom.getGameState() })
   })
 }
 

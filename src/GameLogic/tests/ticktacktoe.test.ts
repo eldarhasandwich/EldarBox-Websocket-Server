@@ -1,7 +1,7 @@
 
 import test from 'ava'
 
-import { DetectWinState } from '../ticktacktoe'
+import { DetectWinState } from '../TickTackToe'
 
 test('DetectWinState detects a valid win state', t => {
   const board1 = [

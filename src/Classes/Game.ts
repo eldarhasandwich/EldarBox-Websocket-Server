@@ -1,15 +1,10 @@
 import * as crypto from 'crypto'
-
-import * as T from 'tswrap'
 import socketIO from 'socket.io'
 
-import { GameLogic } from './logic/GameLogic'
+import { GameLogic, GameType } from '../GameLogic'
+import * as event from '../config/EventNames'
 
 import { Player } from './Player'
-
-export enum GameType {
-  ticktacktoe = 0
-}
 
 export interface NewGameRequest {
   name: string,
@@ -40,7 +35,7 @@ export class Game {
     this.pin = crypto.randomBytes(2).toString('hex')
     this.masterClient.playerRoomSocket = this.masterClient.connection.join(this.getRoomId())
 
-    this.masterClient.connection.on('disconnect', () => {
+    this.masterClient.connection.on(event.DISCONNECT, () => {
       this.endGame()
     })
   }
@@ -49,7 +44,7 @@ export class Game {
     return `room ${this.pin}`
   }
 
-  getGamestate (): any {
+  getGameState (): any {
     return {
       name: this.name,
       type: this.type,
@@ -59,7 +54,7 @@ export class Game {
     }
   }
 
-  join (player: Player): { successful: boolean } {
+  playerJoin (player: Player): { successful: boolean } {
     if (this.players.length >= this.gameLogic.maxPlayers) {
       return { successful: false }
     }
@@ -72,30 +67,25 @@ export class Game {
     this.players.push(player)
     player.playerRoomSocket = player.connection.join(this.getRoomId())
 
-    // apply gamelogic to player socket!
-    player.connection.on('gameCommand', (command: any) => {
+    player.connection.on(event.GAMECOMMAND, (command: any) => {
       const newState = this.gameLogic.messageReducer(this, this.gameLogic.state, command)
       this.gameLogic.state = newState
 
       this.socketServer
         .to(this.getRoomId())
-        .emit('stateUpdate', { state: this.getGamestate() })
+        .emit(event.STATEUPDATE, { state: this.getGameState() })
     })
 
     this.socketServer
       .to(this.getRoomId())
-      .emit('stateUpdate', { state: this.getGamestate() })
+      .emit(event.STATEUPDATE, { state: this.getGameState() })
 
     return { successful: true }
   }
 
-  startGame (): void {
-    this.socketServer.to(this.getRoomId()).emit('game-start', { ok: 'ok' })
-  }
-
   endGame (): void {
     for (const player of this.players) {
-      player.connection.emit('disconnect')
+      player.connection.emit(event.DISCONNECT)
     }
   }
 }
