@@ -1,6 +1,6 @@
 import { Game } from '../Classes/Game'
 
-import { TickTackToe } from './TickTackToe'
+import TickTackToe from './TickTackToe'
 
 export enum GameType {
   ticktacktoe = 0
