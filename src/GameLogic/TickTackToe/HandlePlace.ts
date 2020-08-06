@@ -45,6 +45,10 @@ const HandlePlace = (game: Game, currentState: State, message: PlaceCommand): St
   }
 
   const newBoard = currentState.board
+  if (newBoard[message.position.x][message.position.y] !== BoardToken.Empty) {
+    return currentState
+  }
+
   newBoard[message.position.x][message.position.y] = token
 
   const winState = DetectWinState(newBoard, token)
