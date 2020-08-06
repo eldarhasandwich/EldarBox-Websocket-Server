@@ -3,9 +3,9 @@ import * as crypto from 'crypto'
 import * as T from 'tswrap'
 import socketIO from 'socket.io'
 
-import { GameLogicInstance } from './logic/gameLogic'
+import { GameLogic } from './logic/GameLogic'
 
-import { Player } from './player'
+import { Player } from './Player'
 
 export enum GameType {
   ticktacktoe = 0
@@ -14,18 +14,18 @@ export enum GameType {
 export interface NewGameRequest {
   name: string,
   gameType: GameType,
-  gameLogic: GameLogicInstance,
-  master: Player,
+  gameLogic: GameLogic,
+  masterClient: Player,
   socketServer: socketIO.Server
 }
 
 export class Game {
   name: string
   type: GameType
-  gameLogic: GameLogicInstance
+  gameLogic: GameLogic
   socketServer: socketIO.Server
 
-  master: Player
+  masterClient: Player
   players: Player[]
   pin: string
 
@@ -34,13 +34,13 @@ export class Game {
     this.type = request.gameType
     this.gameLogic = request.gameLogic
     this.socketServer = request.socketServer
-    this.master = request.master
+    this.masterClient = request.masterClient
     this.players = []
 
-    this.pin = crypto.randomBytes(4).toString('hex')
-    this.master.playerRoomSocket = this.master.connection.join(this.getRoomId())
+    this.pin = crypto.randomBytes(2).toString('hex')
+    this.masterClient.playerRoomSocket = this.masterClient.connection.join(this.getRoomId())
 
-    this.master.connection.on('disconnect', () => {
+    this.masterClient.connection.on('disconnect', () => {
       this.endGame()
     })
   }

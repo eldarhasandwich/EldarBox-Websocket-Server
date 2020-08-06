@@ -1,83 +1,23 @@
-import * as fs from 'fs'
 import * as http from 'http'
 
 import express from 'express'
 import socketIO from 'socket.io'
 
 import config from './config'
-import { Game, GameType } from './game'
-import {
-  RetrieveGameLogic,
-  GameLogicInstance
-} from './logic/gameLogic'
+import { RegisterServerEvents } from './ServerEvents'
 
 const app = express()
-const server = http.createServer(app)
-const io = socketIO(server)
+const httpServer = http.createServer(app)
+const socketIoServer = socketIO(httpServer)
 
-const roomList: { [connectCode: string]: Game } = {}
+RegisterServerEvents(socketIoServer)
 
-io.on('connection', (socket: socketIO.Socket) => {
-  console.log('Socket Connection')
-
-  socket.on('index-createRoom', (message: { gameTypeId: GameType }) => {
-
-    const master = {
-      name: 'room master',
-      connection: socket
-    }
-
-    const gameLogic = RetrieveGameLogic(message.gameTypeId)
-    if (!gameLogic) {
-      socket.emit('index-error', { reason: 'No game of this type' })
-      return
-    }
-
-    const newGameRequest = {
-      name: 'a game',
-      gameType: message.gameTypeId,
-      gameLogic: new GameLogicInstance(gameLogic),
-      master,
-      socketServer: io
-    }
-
-    const newGame = new Game(newGameRequest)
-    roomList[newGame.pin] = newGame
-
-    socket.emit('index-gameCreated', { gameObject: newGame.getGamestate() })
-  })
-
-  socket.on('index-joinRoom', (message: { playerName: string, connectCode: string }) => {
-
-    const gameRoom = roomList[message.connectCode]
-
-    if (!gameRoom) {
-      socket.emit('index-error', { reason: 'No room with this connectCode' })
-      return
-    }
-
-    const player = {
-      name: message.playerName,
-      connection: socket
-    }
-
-    const response = gameRoom.join(player)
-
-    if (!response.successful) {
-      socket.emit('index-error', { reason: 'Player could not join this room' })
-      return
-    }
-
-    socket.emit('index-gameJoined', { gameObject: gameRoom.getGamestate() })
-  })
-})
-
-server.on('error', (err) => {
+httpServer.on('error', (err) => {
   throw err
 })
 
-server.on('listening', () => {
+httpServer.on('listening', () => {
   console.log(`Listening on port ${config.port}`)
 })
 
-server.listen(config.port)
+httpServer.listen(config.port)

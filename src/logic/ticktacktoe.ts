@@ -1,6 +1,6 @@
-import { GameLogic } from './gameLogic'
+import { GameRules } from './GameLogic'
 
-import { Game } from '../game'
+import { Game } from '../Game'
 
 interface PlaceCommand {
   messageType: 'place',
@@ -101,7 +101,7 @@ const messageReducer = (gameObject: Game, currentState: State, message: PlaceCom
   }
 }
 
-export const TickTackToe: GameLogic = {
+export const TickTackToe: GameRules = {
   maxPlayers: 2,
   defaultState,
   messageReducer
