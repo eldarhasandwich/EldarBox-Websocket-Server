@@ -50,7 +50,7 @@ const messageReducer = (game: Game, currentState: State, message: PlaceCommand |
       return HandlePlace(game, currentState, message)
 
     case Commands.NEWGAME:
-      return defaultState
+      return JSON.parse(JSON.stringify(defaultState))
 
     default:
       return currentState
