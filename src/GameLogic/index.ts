@@ -6,9 +6,11 @@ export enum GameType {
   ticktacktoe = 0
 }
 
+type MessageReducer = (game: Game, currentState: any, message: any, invokingPlayer: number) => any
+
 export interface GameRules {
   maxPlayers: number,
-  messageReducer: (game: Game, currentState: any, message: any) => any
+  messageReducer: MessageReducer
   defaultState: any
 }
 
@@ -25,7 +27,7 @@ export const RetrieveGameLogic = (gameType: GameType): GameRules | undefined => 
 export class GameLogic {
   maxPlayers: number
   state: any
-  messageReducer: (game: Game, currentState: any, message: any) => any
+  messageReducer: MessageReducer
 
   constructor (ruleSet: GameRules) {
     this.maxPlayers = ruleSet.maxPlayers

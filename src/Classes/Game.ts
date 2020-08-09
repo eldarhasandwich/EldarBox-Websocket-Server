@@ -66,11 +66,11 @@ export class Game {
       return { successful: false }
     }
 
-    this.playerClients.push(player)
+    const playerIndex = this.playerClients.push(player) - 1
     player.playerRoomSocket = player.connection.join(this.getRoomId())
 
     player.connection.on(event.GAMECOMMAND, (command: any) => {
-      const newState = this.gameLogic.messageReducer(this, this.gameLogic.state, command)
+      const newState = this.gameLogic.messageReducer(this, this.gameLogic.state, command, playerIndex)
       this.gameLogic.state = newState
 
       this.socketServer

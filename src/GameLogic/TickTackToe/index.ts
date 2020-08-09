@@ -44,7 +44,7 @@ const defaultState: State = {
   ]
 }
 
-const messageReducer = (game: Game, currentState: State, message: PlaceCommand | NewGameCommand): State => {
+const messageReducer = (game: Game, currentState: State, message: PlaceCommand | NewGameCommand, invokingPlayer: number): State => {
   switch (message.messageType) {
     case Commands.PLACE:
       return HandlePlace(game, currentState, message)
