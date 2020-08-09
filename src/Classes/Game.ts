@@ -92,10 +92,4 @@ export class Game {
         p.connection.emit(event.DISCONNECT)
       })
   }
-
-  endGame (): void {
-    for (const player of this.playerClients) {
-      player.connection.emit(event.DISCONNECT)
-    }
-  }
 }
