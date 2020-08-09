@@ -29,7 +29,7 @@ export const DetectWinState = (board: BoardToken[][], token: BoardToken): BoardT
 
 const HandlePlace = (game: Game, currentState: State, message: PlaceCommand): State => {
 
-  if (game.players.length < 2) {
+  if (game.playerClients.length < 2) {
     return currentState
   }
 
@@ -37,7 +37,7 @@ const HandlePlace = (game: Game, currentState: State, message: PlaceCommand): St
     return currentState
   }
 
-  const isCrossPlayer = game.players[0].name === message.invokingPlayer
+  const isCrossPlayer = game.playerClients[0].name === message.invokingPlayer
   const token = isCrossPlayer ? BoardToken.Cross : BoardToken.Naught
 
   if (currentState.nextToken !== token) {

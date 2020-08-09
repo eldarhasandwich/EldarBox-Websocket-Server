@@ -7,7 +7,7 @@ import { GameType, RetrieveGameLogic, GameLogic } from './GameLogic'
 const rooms: { [connectCode: string]: Game } = {}
 
 const RegisterCreateRoomEventOnSocket = (server: socketIO.Server, socket: socketIO.Socket) => {
-  socket.on(event.CREATEROOM, (message: { gameTypeId: GameType }) => {
+  socket.on(event.CREATEROOM, (message: { gameTypeId: GameType, playerName?: string }) => {
 
     const gameLogic = RetrieveGameLogic(message.gameTypeId)
     if (!gameLogic) {
@@ -19,7 +19,7 @@ const RegisterCreateRoomEventOnSocket = (server: socketIO.Server, socket: socket
       name: 'a game',
       gameType: message.gameTypeId,
       gameLogic: new GameLogic(gameLogic),
-      masterClient: { name: 'master', connection: socket },
+      masterClient: { name: message.playerName || 'master', connection: socket },
       socketServer: server
     }
 

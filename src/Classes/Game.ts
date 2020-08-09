@@ -20,8 +20,8 @@ export class Game {
   gameLogic: GameLogic
   socketServer: socketIO.Server
 
-  masterClient: Player
-  players: Player[]
+  roomOwner: Player
+  playerClients: Player[]
   pin: string
 
   constructor (request: NewGameRequest) {
@@ -29,15 +29,17 @@ export class Game {
     this.type = request.gameType
     this.gameLogic = request.gameLogic
     this.socketServer = request.socketServer
-    this.masterClient = request.masterClient
-    this.players = []
+    this.roomOwner = request.masterClient
+    this.playerClients = []
 
     this.pin = crypto.randomBytes(2).toString('hex')
-    this.masterClient.playerRoomSocket = this.masterClient.connection.join(this.getRoomId())
+    this.roomOwner.playerRoomSocket = this.roomOwner.connection.join(this.getRoomId())
 
-    this.masterClient.connection.on(event.DISCONNECT, () => {
-      this.endGame()
+    this.roomOwner.connection.on(event.DISCONNECT, () => {
+      this.dropGuests()
     })
+
+    this.playerJoin(this.roomOwner)
   }
 
   getRoomId (): string {
@@ -49,22 +51,22 @@ export class Game {
       name: this.name,
       type: this.type,
       state: this.gameLogic.state,
-      players: this.players.map(p => { return { name: p.name } }),
+      players: this.playerClients.map(p => { return { name: p.name } }),
       pin: this.pin
     }
   }
 
   playerJoin (player: Player): { successful: boolean } {
-    if (this.players.length >= this.gameLogic.maxPlayers) {
+    if (this.playerClients.length >= this.gameLogic.maxPlayers) {
       return { successful: false }
     }
 
-    const nameCollision = this.players.find(existingPlayer => existingPlayer.name === player.name)
+    const nameCollision = this.playerClients.find(existingPlayer => existingPlayer.name === player.name)
     if (nameCollision) {
       return { successful: false }
     }
 
-    this.players.push(player)
+    this.playerClients.push(player)
     player.playerRoomSocket = player.connection.join(this.getRoomId())
 
     player.connection.on(event.GAMECOMMAND, (command: any) => {
@@ -83,8 +85,16 @@ export class Game {
     return { successful: true }
   }
 
+  dropGuests (): void {
+    this.playerClients
+      .filter(p => p !== this.roomOwner)
+      .forEach(p => {
+        p.connection.emit(event.DISCONNECT)
+      })
+  }
+
   endGame (): void {
-    for (const player of this.players) {
+    for (const player of this.playerClients) {
       player.connection.emit(event.DISCONNECT)
     }
   }
